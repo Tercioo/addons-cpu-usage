@@ -1,6 +1,6 @@
 --[[
 Name: LibGraph-2.0
-Revision: $Rev: 54 $
+Revision: $Rev: 55 $
 Author(s): Cryect (cryect@gmail.com), Xinhuan
 Website: http://www.wowace.com/
 Documentation: http://www.wowace.com/wiki/GraphLib
@@ -267,7 +267,7 @@ end
 function lib:CreateGraphLine(name, parent, relative, relativeTo, offsetX, offsetY, Width, Height)
 	local graph
 	local i
-	graph = CreateFrame("Frame", name, parent,"BackdropTemplate")
+	graph = CreateFrame("Frame", name, parent)
 
 
 	graph:SetPoint(relative, parent, relativeTo, offsetX, offsetY)

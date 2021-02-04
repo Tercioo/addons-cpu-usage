@@ -528,7 +528,7 @@ local tutorial_phrases = {
 	function ACU:CreateMainWindow()
 	
 		-- main frame
-		local f = CreateFrame ("frame", "ACUMainFrame", UIParent,"BackdropTemplate")
+		local f = CreateFrame ("frame", "ACUMainFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		f:SetSize (780, 470)
 		f:SetPoint ("center", UIParent, "center")
 		f:EnableMouse (true)
@@ -550,7 +550,7 @@ local tutorial_phrases = {
 		end)
 		
 		-- close button
-		local c = CreateFrame ("Button", nil, f, "UIPanelCloseButton")
+		local c = CreateFrame ("Button", nil, f, "UIPanelCloseButton", BackdropTemplateMixin and "BackdropTemplate")
 		c:SetWidth (32)
 		c:SetHeight (32)
 		c:SetPoint ("topright",  f, "topright", -3, -8)
@@ -577,7 +577,7 @@ local tutorial_phrases = {
 		totalusage2:SetPoint ("left", totalusage, "right", 3, 0)
 		ACU.totalusage2 = totalusage2
 		
-		local totalusage_tooltip = CreateFrame ("frame", nil, f)
+		local totalusage_tooltip = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 		totalusage_tooltip:SetFrameLevel (f:GetFrameLevel()+1)
 		totalusage_tooltip:SetPoint ("left", totalusage, "left")
 		totalusage_tooltip:SetSize (100, 20)
@@ -610,7 +610,7 @@ local tutorial_phrases = {
 		averageusage2:SetPoint ("left", averageusage, "right", 3, 0)
 		ACU.averageusage2 = averageusage2
 		
-		local averageusage_tooltip = CreateFrame ("frame", nil, f)
+		local averageusage_tooltip = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 		averageusage_tooltip:SetFrameLevel (f:GetFrameLevel()+1)
 		averageusage_tooltip:SetPoint ("left", averageusage, "left")
 		averageusage_tooltip:SetSize (100, 20)
@@ -635,7 +635,7 @@ local tutorial_phrases = {
 		cpu_score_text2:SetPoint ("left", cpu_score_text, "right", 3, 0)
 		ACU.cpu_score_text2 = cpu_score_text2
 		
-		local cpu_score_frame = CreateFrame ("frame", nil, f)
+		local cpu_score_frame = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 		cpu_score_frame:SetFrameLevel (f:GetFrameLevel()+1)
 		cpu_score_frame:SetPoint ("left", cpu_score_text, "left")
 		cpu_score_frame:SetSize (100, 20)
@@ -664,7 +664,7 @@ local tutorial_phrases = {
 		fpsloss2:SetPoint ("left", fpsloss, "right", 3, 0)
 		ACU.fpsloss2 = fpsloss2
 		
-		local fpsloss_tooltip = CreateFrame ("frame", nil, f)
+		local fpsloss_tooltip = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 		fpsloss_tooltip:SetFrameLevel (f:GetFrameLevel()+1)
 		fpsloss_tooltip:SetPoint ("left", fpsloss, "left")
 		fpsloss_tooltip:SetSize (100, 20)
@@ -702,7 +702,7 @@ local tutorial_phrases = {
 		help_image:SetSize (24, 24)
 		help_image:SetDesaturated (true)
 		
-		local help_tooltip = CreateFrame ("frame", nil, f)
+		local help_tooltip = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 		help_tooltip:SetFrameLevel (f:GetFrameLevel()+1)
 		help_tooltip:SetPoint ("left", help_str, "left")
 		help_tooltip:SetSize (100, 20)
@@ -727,7 +727,7 @@ local tutorial_phrases = {
 		end)
 		
 		--chart frame
-		local chart = CreateACUChartPanel (f, 765, 370, "ACUChartFrame","BackdropTemplate")
+		local chart = CreateACUChartPanel (f, 765, 370, "ACUChartFrame")
 		chart:SetPoint ("topleft", f, "topleft", 10, -50)
 		chart:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 		chart:SetBackdropColor (0, 0, 0, 0.2)
@@ -750,7 +750,7 @@ local tutorial_phrases = {
 		chart.Graphic:SetBackdropBorderColor (0, 0, 0, 0)
 		
 		--table frame
-		local table_frame = CreateFrame ("frame", "ACUTableFrame", f,"BackdropTemplate")
+		local table_frame = CreateFrame ("frame", "ACUTableFrame", f, BackdropTemplateMixin and "BackdropTemplate")
 		table_frame:SetPoint ("topleft", f, "topleft", 10, -50)
 		table_frame:SetSize (765, 370)
 		table_frame:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
@@ -787,7 +787,7 @@ local tutorial_phrases = {
 		local graphic_checkbox_title = table_frame:CreateFontString (nil, "overlay", "GameFontNormal")
 		
 		local function CreateTooltipAnchor (anchor, title, tooltip)
-			local tframe = CreateFrame ("frame", nil, f)
+			local tframe = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 			tframe:SetFrameLevel (f:GetFrameLevel()+3)
 			tframe:SetPoint ("left", anchor, "left")
 			tframe:SetSize (80, 20)
@@ -835,7 +835,7 @@ local tutorial_phrases = {
 		local background2 = {1, 1, 1, 0.0}
 		
 		for i = 1, 16 do
-			local line = CreateFrame ("frame", "ACUTableFrameLine" .. i, table_frame,"BackdropTemplate")
+			local line = CreateFrame ("frame", "ACUTableFrameLine" .. i, table_frame, BackdropTemplateMixin and "BackdropTemplate")
 			local y = (i-0) * 21 * -1
 			line:SetPoint ("topleft", table_frame, "topleft", 5, y)
 			line:SetPoint ("topright", table_frame, "topright", -25, y)
@@ -968,7 +968,7 @@ local tutorial_phrases = {
 		table_frame:Hide()
 
 		--switch button
-		local switch_frames = CreateFrame ("button", "ACUSwapFramesButton", f,"BackdropTemplate")
+		local switch_frames = CreateFrame ("button", "ACUSwapFramesButton", f, BackdropTemplateMixin and "BackdropTemplate")
 		switch_frames:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 		switch_frames:SetBackdropColor (0, 0, 0, 0.4)
 		switch_frames:SetBackdropBorderColor (1, 1, 1, 1)
@@ -1022,7 +1022,7 @@ local tutorial_phrases = {
 			end
 		end
 		
-		local enable_disable = CreateFrame ("button", "ACUProfilerButton", f,"BackdropTemplate")
+		local enable_disable = CreateFrame ("button", "ACUProfilerButton", f, BackdropTemplateMixin and "BackdropTemplate")
 		enable_disable:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 		enable_disable:SetBackdropColor (0, 0, 0, 0.4)
 		enable_disable:SetBackdropBorderColor (1, 1, 1, 1)
@@ -1043,7 +1043,7 @@ local tutorial_phrases = {
 			do
 				local buttonScale = 1.4
 			
-				local resetRealTime = CreateFrame ("button", "ACUResetRealTimeButton", f)
+				local resetRealTime = CreateFrame ("button", "ACUResetRealTimeButton", f, BackdropTemplateMixin and "BackdropTemplate")
 				resetRealTime:SetPoint ("bottomleft", enable_disable, "topleft", 0, 2)
 				resetRealTime:SetSize (16*buttonScale, 16*buttonScale)
 				local resetRealTimeIcon = resetRealTime:CreateTexture (nil, "overlay")
@@ -1077,7 +1077,7 @@ local tutorial_phrases = {
 				resetRealTime:Hide()
 				ACU.ResetRealTime = resetRealTime
 				--
-				local startRealTime = CreateFrame ("button", "ACUStartRealTimeButton", f)
+				local startRealTime = CreateFrame ("button", "ACUStartRealTimeButton", f, BackdropTemplateMixin and "BackdropTemplate")
 				startRealTime:SetPoint ("left", resetRealTime, "right", 10, 0)
 				startRealTime:SetSize (16*buttonScale, 16*buttonScale)
 				local startRealTimeIcon = startRealTime:CreateTexture (nil, "overlay")
@@ -1110,7 +1110,7 @@ local tutorial_phrases = {
 				startRealTime:Hide()
 				ACU.BeginRealTime = startRealTime
 				--
-				local stopRealTime = CreateFrame ("button", "ACUStopRealTimeButton", f)
+				local stopRealTime = CreateFrame ("button", "ACUStopRealTimeButton", f, BackdropTemplateMixin and "BackdropTemplate")
 				stopRealTime:SetPoint ("left", startRealTime, "right", 10, -1)
 				stopRealTime:SetSize (16*buttonScale, 16*buttonScale)
 				local stopRealTimeIcon = stopRealTime:CreateTexture (nil, "overlay")
@@ -1192,7 +1192,7 @@ local tutorial_phrases = {
 		end)
 		
 		function ACU:DoBenchmark()
-			local timeFrame = AddonsCPUUsageBenchmarkFrame or CreateFrame ("frame", "AddonsCPUUsageBenchmarkFrame", UIParent)
+			local timeFrame = AddonsCPUUsageBenchmarkFrame or CreateFrame ("frame", "AddonsCPUUsageBenchmarkFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 			timeFrame.Step = 1
 			timeFrame.ElapsedTime = {}
 			local STEPEND = 4
@@ -1258,7 +1258,7 @@ local tutorial_phrases = {
 		--tutorial
 		local got_tutorial = ACU.db.profile.first_run
 		if (not got_tutorial) then
-			local t = CreateFrame ("frame", "ACUProfilerTutorial", f,"BackdropTemplate")
+			local t = CreateFrame ("frame", "ACUProfilerTutorial", f, BackdropTemplateMixin and "BackdropTemplate")
 			t:SetSize (500, 300)
 			t:SetPoint ("center", f, "center")
 			t:SetFrameLevel (f:GetFrameLevel()+15)
@@ -1281,7 +1281,7 @@ local tutorial_phrases = {
 			end
 			desc_text:SetText (l)
 			
-			local close = CreateFrame ("button", "ACUProfilerTutorialClose", t,"BackdropTemplate")
+			local close = CreateFrame ("button", "ACUProfilerTutorialClose", t, BackdropTemplateMixin and "BackdropTemplate")
 			close:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 			close:SetBackdropColor (0, 0, 0, 0.4)
 			close:SetBackdropBorderColor (1, 1, 1, 1)
@@ -1321,7 +1321,7 @@ local tutorial_phrases = {
 	end
 
 	-- ~capture
-		local on_capturing_screen = CreateFrame ("frame", "ACUProfilerCaptureScreen", UIParent, "BackdropTemplate")
+		local on_capturing_screen = CreateFrame ("frame", "ACUProfilerCaptureScreen", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		on_capturing_screen:Hide()
 		on_capturing_screen:SetFrameStrata ("TOOLTIP")
 		on_capturing_screen:SetSize (205, 65)
@@ -1337,7 +1337,7 @@ local tutorial_phrases = {
 		title:SetText (Loc ["STRING_CAPTURING_CPU"])
 		title:SetPoint ("left", icon, "right", 6, 0)
 		
-		local statusbar = CreateFrame ("statusbar", "ACUProfilerCaptureScreenStatusbar", on_capturing_screen)
+		local statusbar = CreateFrame ("statusbar", "ACUProfilerCaptureScreenStatusbar", on_capturing_screen, BackdropTemplateMixin and "BackdropTemplate")
 		statusbar:SetPoint ("bottomleft", on_capturing_screen, "bottomleft", 10, 2)
 		statusbar:SetPoint ("bottomright", on_capturing_screen, "bottomright", -10, 2)
 		statusbar:SetHeight (14)
@@ -1367,7 +1367,7 @@ local tutorial_phrases = {
 		not_intended:SetText (Loc ["STRING_NO_INTENDED"])
 		not_intended:SetPoint ("center", statusbar, "center", 0, 0)
 		not_intended:SetPoint ("bottom", statusbar, "top", 0, 6)
-		local disable_profiler = CreateFrame ("button", "ACUProfilerCaptureScreenStopProfilerButton", on_capturing_screen)
+		local disable_profiler = CreateFrame ("button", "ACUProfilerCaptureScreenStopProfilerButton", on_capturing_screen, BackdropTemplateMixin and "BackdropTemplate")
 		disable_profiler:SetPoint ("topleft", not_intended, "topleft")
 		disable_profiler:SetPoint ("bottomright", not_intended, "bottomright")
 		disable_profiler:SetScript ("OnClick", function()

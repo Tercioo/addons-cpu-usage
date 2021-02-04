@@ -643,7 +643,7 @@ local create_box = function (self, next_box)
 	thisbox.check = checktexture
 	thisbox.enabled = true
 
-	local button = CreateFrame ("button", nil, self.Graphic)
+	local button = CreateFrame ("button", nil, self.Graphic, BackdropTemplateMixin and "BackdropTemplate")
 	button:SetSize (20, 20)
 	button:SetScript ("OnClick", function()
 		chart_panel_enable_line (self, thisbox)
@@ -1039,7 +1039,7 @@ function CreateACUChartPanel (parent, w, h, name)
 	w = w or 800
 	h = h or 500
 
-	local f = CreateFrame ("frame", name, parent,"BackdropTemplate")
+	local f = CreateFrame ("frame", name, parent, BackdropTemplateMixin and "BackdropTemplate")
 	f:SetSize (w or 500, h or 400)
 	f:EnableMouse (true)
 	f:SetMovable (true)
