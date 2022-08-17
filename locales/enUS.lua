@@ -5,7 +5,7 @@ L["STRING_CAPTURING_CPU"] = "Capturing Addons Cpu Usage"
 L["STRING_CLOSE"] = "close"
 L["STRING_CPUSCORE_DESC"] = [=[How fast is your Cpu, high values are best.
 
-Compare Cpu Score with others
+Compare Cpu Score with other players
 to know the difference.]=]
 L["STRING_DATA_RESET"] = "data has been reset"
 L["STRING_DATABROKER_HELP_LEFTBUTTON"] = "|cFFFFFF00Left Click|r: open cpu panel."

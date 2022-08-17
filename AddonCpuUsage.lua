@@ -119,6 +119,93 @@ local OptionsTable = {
 	}
 }
 
+function ACU:DoBenchmark()
+	local benchmarkFrame = AddonsCPUUsageBenchmarkFrame or CreateFrame ("frame", "AddonsCPUUsageBenchmarkFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+	benchmarkFrame.texture = benchmarkFrame.texture or benchmarkFrame:CreateTexture(nil, "overlay")
+	benchmarkFrame.fontstring = benchmarkFrame.fontstring or benchmarkFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+	local stringText = "dhaksjerkjrkjsdnsadjhalkjahdfgkjlhasjkgharjasejksdhfkjlerklaklzlkeorerwehjrwgrwegasmnbdauioiqwueui,mcxvjqweuiysdlmivrtnyhwx,oicro.lcvfto.lhjkmvsyhgsrhjgsaekjgklhkjlhkjliopepwoweop´q~sçd;.,xcv,.mvcbmbvjkdfhg"
+
+	if (DetailsFramework) then
+		DetailsFramework:ApplyStandardBackdrop(benchmarkFrame)
+	end
+
+	benchmarkFrame:SetSize(200, 60)
+	benchmarkFrame.performingString = benchmarkFrame.performingString or benchmarkFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+	benchmarkFrame.performingString:SetPoint("center")
+	benchmarkFrame.performingString:SetText("Calculating CPU Score")
+	benchmarkFrame:SetPoint("center")
+	benchmarkFrame:SetFrameStrata("FULLSCREEN")
+
+	benchmarkFrame:Show()
+
+	local fontString = benchmarkFrame.fontstring
+	local texture = benchmarkFrame.texture
+	local texturePath = [[Interface\ICONS\6OR_Garrison_metaltrim_02]]
+	local scores = {}
+
+	--start
+	C_Timer.After(0, function()
+		local startTime = debugprofilestop()
+
+		--> math
+			for i = 1, 10^7 do
+				i = i * i / 2 + i
+			end
+			local deltaTime = debugprofilestop() - startTime
+			scores[#scores+1] = deltaTime
+			startTime = debugprofilestop()
+
+		--> table allocation
+			local myTable = {}
+			for i = 1, 10^5 do
+				for o = 1, 33 do
+					myTable[o] = true
+				end
+				for o = 33, 1, -1 do
+					myTable[o] = nil
+				end
+			end
+			local deltaTime = debugprofilestop() - startTime
+			scores[#scores+1] = deltaTime
+			startTime = debugprofilestop()
+
+		--> string manipulation
+			for i = 1, 10^2 do
+				for o = 1, #stringText do
+					fontString:SetText(stringText:sub(1, -o))
+					fontString:GetStringWidth()
+				end
+			end
+			local deltaTime = debugprofilestop() - startTime
+			scores[#scores+1] = deltaTime
+			startTime = debugprofilestop()
+
+		--> texture manipulation
+			for i = 0.00001, 1, 0.00001 do
+				texture:SetTexture(texturePath)
+				texture:SetTexCoord(i, -i, -i, i, -i, -i, i, -i)
+				--texture:SetColorTexture(i, i, i, i) --too expensive
+				texture:SetVertexColor(i, i, i, i)
+			end
+			local deltaTime = debugprofilestop() - startTime
+			scores[#scores+1] = deltaTime
+
+		ACU.CPUBeachmarkResults = {}
+
+		local totalTime = 0
+		for i = 1, #scores do
+			totalTime = totalTime + scores[i]
+			ACU.CPUBeachmarkResults[i] = scores[i]
+		end
+
+		ACU.CPUBeachmarkTotalTime = totalTime
+		ACU.BenchmarkDone = true
+
+		benchmarkFrame:Hide()
+		ACU:UpdateCPUScoreOnScreenPanel()
+	end)
+end
+
 function ACU:OnInitialize()
 
 	self.db = LibStub ("AceDB-3.0"):New ("AddonCpuUsageDB", default_db, true)
@@ -529,7 +616,7 @@ local tutorial_phrases = {
 	
 		-- main frame
 		local f = CreateFrame ("frame", "ACUMainFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
-		f:SetSize (780, 470)
+		f:SetSize (780, 475)
 		f:SetPoint ("center", UIParent, "center")
 		f:EnableMouse (true)
 		f:SetMovable (true)
@@ -548,6 +635,11 @@ local tutorial_phrases = {
 				self:StopMovingOrSizing()
 			end
 		end)
+
+		local DF = _G.DetailsFramework
+		if (DF) then
+			DF:ApplyStandardBackdrop(f)
+		end
 		
 		-- close button
 		local c = CreateFrame ("Button", nil, f, "UIPanelCloseButton", BackdropTemplateMixin and "BackdropTemplate")
@@ -634,7 +726,19 @@ local tutorial_phrases = {
 		cpu_score_text2:SetText ("--x--x--")
 		cpu_score_text2:SetPoint ("left", cpu_score_text, "right", 3, 0)
 		ACU.cpu_score_text2 = cpu_score_text2
-		
+
+		local getFormattedCpuScore = function()
+			return ceil(math.max(abs(2000 - ACU.CPUBeachmarkTotalTime, 0)))
+		end
+
+		local getFormattedTestResult = function(testId)
+			local score = ACU.CPUBeachmarkResults[testId]
+			local percent = score / ACU.CPUBeachmarkTotalTime
+
+			local formattedTotalScore = getFormattedCpuScore()
+			return ceil(formattedTotalScore * percent)
+		end
+
 		local cpu_score_frame = CreateFrame ("frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 		cpu_score_frame:SetFrameLevel (f:GetFrameLevel()+1)
 		cpu_score_frame:SetPoint ("left", cpu_score_text, "left")
@@ -642,19 +746,27 @@ local tutorial_phrases = {
 		cpu_score_frame:SetScript ("OnEnter", function (self)
 			GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
 			GameTooltip:AddLine ("Cpu Score")
-			GameTooltip:AddLine (" ")
 			GameTooltip:AddLine (Loc ["STRING_CPUSCORE_DESC"])
+			GameTooltip:AddLine(" ")
+			GameTooltip:AddDoubleLine("Test 1:", getFormattedTestResult(1))
+			GameTooltip:AddDoubleLine("Test 2:", getFormattedTestResult(2))
+			GameTooltip:AddDoubleLine("Test 3:", getFormattedTestResult(3))
+			GameTooltip:AddDoubleLine("Test 4:", getFormattedTestResult(4))
 			GameTooltip:Show()
 		end)
 		cpu_score_frame:SetScript ("OnLeave", function (self)
 			GameTooltip:Hide()
 		end)
-		
-		--> when just enabled the profiler, the benchmark runs once at login
-		if (ACU.BenchmarkTotalTime) then
-			ACU.cpu_score_text2:SetText (floor (math.max (4000 - (ACU.BenchmarkTotalTime*1000), 0)))
+
+		function ACU:UpdateCPUScoreOnScreenPanel()
+			if (ACU.CPUBeachmarkResults) then
+				ACU.cpu_score_text2:SetText(getFormattedCpuScore())
+			end
 		end
-		
+
+		--run the beachmark when the window is created
+		ACU:DoBenchmark()
+
 		local fpsloss = f:CreateFontString (nil, "overlay", "GameFontNormal")
 		fpsloss:SetText ("Loss:")
 		fpsloss:SetTextColor (1, 1, 1)
@@ -967,6 +1079,18 @@ local tutorial_phrases = {
 		
 		table_frame:Hide()
 
+		local DF = _G.DetailsFramework
+		if (DF) then
+			DF:ReskinSlider(tfscroll)
+			local statusBar = DF:CreateStatusBar(f)
+			statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
+			statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
+			statusBar.text:SetText("An addon by Terciob | Built with Details! Framework")
+			DF:SetFontSize(statusBar.text, 11)
+			DF:SetFontColor(statusBar.text, "gray")
+			statusBar.text:SetText("An addon by Terciob")
+		end
+
 		--switch button
 		local switch_frames = CreateFrame ("button", "ACUSwapFramesButton", f, BackdropTemplateMixin and "BackdropTemplate")
 		switch_frames:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
@@ -996,16 +1120,16 @@ local tutorial_phrases = {
 		
 		-- enable profiler button
 		local profiler_icon = f:CreateTexture (nil, "overlay")
-		profiler_icon:SetPoint ("bottomleft", f, "bottomleft", 10, 5)
+		profiler_icon:SetPoint ("bottomleft", f, "bottomleft", 10, 21)
 		profiler_icon:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
 		profiler_icon:SetSize (16, 16)
 		
 		local profiler_text = f:CreateFontString (nil, "overlay", "GameFontNormal")
-		profiler_text:SetPoint ("left", profiler_icon, "right", 5, 1)
+		profiler_text:SetPoint ("left", profiler_icon, "right", 5, -1)
 		profiler_text:SetJustifyH ("left")
 		
 		local cpu_use_text = f:CreateFontString (nil, "overlay", "GameFontNormal")
-		cpu_use_text:SetPoint ("bottomleft", profiler_icon, "topright", 0, 2)
+		cpu_use_text:SetPoint ("bottomleft", profiler_icon, "topright", 0, 0)
 		cpu_use_text:SetJustifyH ("left")
 		cpu_use_text:SetText (Loc ["STRING_RESULT_HELP"])
 		
@@ -1027,7 +1151,7 @@ local tutorial_phrases = {
 		enable_disable:SetBackdropColor (0, 0, 0, 0.4)
 		enable_disable:SetBackdropBorderColor (1, 1, 1, 1)
 		enable_disable:SetFrameLevel (f:GetFrameLevel()+10)
-		enable_disable:SetPoint ("bottomright", f, "bottomright", -10, 5)
+		enable_disable:SetPoint ("bottomright", f, "bottomright", -10, 2)
 		enable_disable:SetSize (120, 16)
 		enable_disable:SetScript ("OnClick", function (self, button)
 			if (ACU:IsProfileEnabled()) then
@@ -1176,85 +1300,8 @@ local tutorial_phrases = {
 					ACU:UpdateChart()
 				end
 			end
-			
-			--> if already measured cpu and the result was bad, try it again
-			if (ACU.BenchmarkTotalTime and ACU.cpu_score_text2) then
-				local t = floor (math.max (4000 - (ACU.BenchmarkTotalTime*1000), 0))
-				if (t == 0) then
-					ACU:DoBenchmark()
-				end
-			end
-			
-			--> measure cpu speed
-			if (not ACU.BenchmarkDone) then
-				ACU:DoBenchmark()
-			end
 		end)
-		
-		function ACU:DoBenchmark()
-			local timeFrame = AddonsCPUUsageBenchmarkFrame or CreateFrame ("frame", "AddonsCPUUsageBenchmarkFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
-			timeFrame.Step = 1
-			timeFrame.ElapsedTime = {}
-			local STEPEND = 4
 
-			timeFrame:SetScript ("OnUpdate", function (self, deltaTime)
-				if (timeFrame.Step > 1) then
-					timeFrame.ElapsedTime [timeFrame.Step - 1] = deltaTime
-				end
-				
-				if (timeFrame.Step == STEPEND) then
-					timeFrame:SetScript ("OnUpdate", nil)
-					ACU.BenchmarkDone = true
-					ACU.BenchmarkTotalTime = timeFrame.ElapsedTime [1] + timeFrame.ElapsedTime [2] + timeFrame.ElapsedTime [3]
-					ACU.BenchmarkStep1 = timeFrame.ElapsedTime [1]
-					ACU.BenchmarkStep2 = timeFrame.ElapsedTime [2]
-					ACU.BenchmarkStep3 = timeFrame.ElapsedTime [3]
-					if (ACU.cpu_score_text2) then
-						ACU.cpu_score_text2:SetText (floor (math.max (4000 - (ACU.BenchmarkTotalTime*1000), 0)))
-					end
-					
-					return
-				end
-				
-				if (timeFrame.Step == 1) then
-					--> benchmark math
-					local pi = math.pi
-					for i = 1, 9999999 do
-						pi = pi / 6.28 * 360 / 360 * 6.28
-					end
-				end
-				
-				if (timeFrame.Step == 2) then
-					--> benchmark framework
-					local texture = timeFrame:CreateTexture (nil, "overlay")
-					for i = 1, 799999 do
-						texture:SetColorTexture (1, 1, 1, 0.5)
-					end
-					
-					local text = timeFrame:CreateFontString (nil, "overlay")
-					for i = 1, 799999 do
-						text:SetSize (60, 20)
-					end
-				end
-				
-				if (timeFrame.Step == 3) then
-					--> benchmark table management
-					local globalNameSpace = getfenv()
-					local localTable = {}
-					for i = 1, 2 do
-						for key, value in pairs (globalNameSpace) do
-							localTable [key .. i] = value
-						end
-					end
-					for key, value in pairs (localTable) do
-						localTable [key] = nil
-					end
-				end
-
-				timeFrame.Step = timeFrame.Step + 1
-			end)
-		end
-		
 		--tutorial
 		local got_tutorial = ACU.db.profile.first_run
 		if (not got_tutorial) then
