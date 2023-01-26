@@ -3,20 +3,7 @@
 	<Script file="panel.lua"/>
 	
 	<Frame name="ACUPanelTemplate" virtual="true">
-	
-		<Size x="100" y="100"/>
-	
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-			<EdgeSize>
-				<AbsValue val="10"/>
-			</EdgeSize>
-			<TileSize>
-				<AbsValue val="16"/>
-			</TileSize>
-			<BackgroundInsets>
-				<AbsInset left="1" right="1" top="0" bottom="1"/>
-			</BackgroundInsets>
-		  </Backdrop>
+			<Size x="100" y="100"/>
 	
 		<Scripts>
 			<OnLoad>
