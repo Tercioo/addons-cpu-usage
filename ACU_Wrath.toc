@@ -1,0 +1,19 @@
+## Interface: 30402
+## Title: Addon Cpu Usage
+## Notes: Show how much your addons are using the CPU.
+## SavedVariables: AddonCpuUsageDB
+## SavedVariablesPerCharacter: AddonCpuUsageDBLocal
+
+## X-Curse-Project-ID: 90853
+## X-Wago-ID: JZKb9O61
+
+#@no-lib-strip@
+Libs\libs.xml
+#@end-no-lib-strip@
+
+locales\enUS.lua
+
+panel.xml
+button.xml
+
+AddonCpuUsage.lua
