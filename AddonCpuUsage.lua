@@ -7,6 +7,7 @@ local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ("AddonCpuUsage")
+local GameTooltip = GameTooltip
 
 --local debugmode = true
 local debugmode = false
@@ -252,35 +253,36 @@ function ACU:OnInitialize()
 		print ("-------------------------")
 	end
 
-	--debug
-	if (debugmode or ACU.db.profile.auto_open) then
-		function ACU:ShowMe()
-			ACUMainFrame:Show()
-		end
-
-		ACU:CreateMainWindow()
-		ACUMainFrame:Show()
-		--ACU:ScheduleTimer ("ShowMe", 1)
-
-		ACU.db.profile.auto_open = nil
-
-		if (debugmode) then
-			ACU.DataPool = ACU.db.profile.data_pool
-		end
-	end
-
-	if (ACU.db.profile.auto_run) then
-		if (ACU:IsProfileEnabled()) then
-			function ACU:AutoStart()
-				if (ACU.RealTimeTick) then
-					ACU.StopRealTime()
-				end
-				ACU:StartRealTime (ACU.db.profile.auto_run_time)
+	C_Timer.After(1, function()
+		--debug
+		if (debugmode or ACU.db.profile.auto_open) then
+			function ACU:ShowMe()
+				ACUMainFrame:Show()
 			end
-			ACU:ScheduleTimer ("AutoStart", ACU.db.profile.auto_run_delay)
-		end
-	end
 
+			ACU:CreateMainWindow()
+			ACUMainFrame:Show()
+			--ACU:ScheduleTimer ("ShowMe", 1)
+
+			ACU.db.profile.auto_open = nil
+
+			if (debugmode) then
+				ACU.DataPool = ACU.db.profile.data_pool
+			end
+		end
+
+		if (ACU.db.profile.auto_run) then
+			if (ACU:IsProfileEnabled()) then
+				function ACU:AutoStart()
+					if (ACU.RealTimeTick) then
+						ACU.StopRealTime()
+					end
+					ACU:StartRealTime (ACU.db.profile.auto_run_time)
+				end
+				ACU:ScheduleTimer ("AutoStart", ACU.db.profile.auto_run_delay)
+			end
+		end
+	end)
 end
 
 function ACU.StopRealTime()
@@ -1131,6 +1133,9 @@ local tutorial_phrases = {
 		local cpuUsageText = f:CreateFontString (nil, "overlay", "GameFontNormal")
 		cpuUsageText:SetPoint ("bottomleft", profilerIcon, "topright", 0, 0)
 		cpuUsageText:SetJustifyH ("left")
+		if (DetailsFramework) then
+			DetailsFramework:SetFontSize(cpuUsageText, 10)
+		end
 		cpuUsageText:SetText (Loc ["STRING_RESULT_HELP"])
 
 		f.profiler_icon = profilerIcon
@@ -1163,17 +1168,45 @@ local tutorial_phrases = {
 			end
 		end)
 
+		local enableRealTimeProfiling = CreateFrame("button", "ACUProfilerButton", f, BackdropTemplateMixin and "BackdropTemplate")
+		enableRealTimeProfiling:SetBackdrop ({bgFile = [[Interface\AddOns\ACU\background]], tileSize = 64, edgeFile = [[Interface\AddOns\ACU\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
+		enableRealTimeProfiling:SetBackdropColor (0, 0, 0, 0.4)
+		enableRealTimeProfiling:SetBackdropBorderColor (1, 1, 1, 1)
+		enableRealTimeProfiling:SetFrameLevel (f:GetFrameLevel()+10)
+		enableRealTimeProfiling:SetPoint ("right", enableDisableProfillerButton, "left", -5, 0)
+		enableRealTimeProfiling:SetSize (200, 16)
+		enableRealTimeProfiling:SetScript ("OnClick", function (self, button)
+			if (ACU:IsProfileEnabled()) then
+				if (not ACU.RealTimeTick) then
+					ACU:StartRealTime()
+					ACU:Msg ("real time started")
+				else
+					ACU:StopRealTime()
+					ACU:Msg (Loc ["STRING_REALTIME_DONE"])
+				end
+			else
+				ACU:Msg (Loc ["STRING_PROFILING_NOT_ENABLED"])
+			end
+		end)
+
+		local enableRealTimeProfilingText = enableRealTimeProfiling:CreateFontString (nil, "overlay", "GameFontNormal")
+		enableRealTimeProfilingText:SetPoint ("center", enableRealTimeProfiling, "center")
+		enableRealTimeProfilingText:SetText (Loc ["STRING_REALTIME_START"])
+
+
 		--real time debug
 		do
-			local buttonScale = 1.4
+			local buttonScale = 1
 
 			local resetRealTime = CreateFrame ("button", "ACUResetRealTimeButton", f, BackdropTemplateMixin and "BackdropTemplate")
-			resetRealTime:SetPoint ("bottomleft", enableDisableProfillerButton, "topleft", 0, 2)
-			resetRealTime:SetSize (16*buttonScale, 16*buttonScale)
+			resetRealTime:SetPoint ("bottomleft", enableDisableProfillerButton, "topleft", -190, 2)
+			resetRealTime:SetSize (100*buttonScale, 20*buttonScale)
+
 			local resetRealTimeIcon = resetRealTime:CreateTexture (nil, "overlay")
 			resetRealTimeIcon:SetTexture ([[Interface\BUTTONS\UI-RefreshButton]])
 			resetRealTimeIcon:SetSize (14*buttonScale, 14*buttonScale)
-			resetRealTimeIcon:SetPoint ("center")
+			resetRealTimeIcon:SetPoint ("left", resetRealTime, "left", 2, 0)
+
 			resetRealTime:SetScript ("OnClick", function()
 				if (ACU:IsProfileEnabled()) then
 					if (ACU.RealTimeTick) then
@@ -1189,6 +1222,15 @@ local tutorial_phrases = {
 				end
 			end)
 
+			--create a fontstring to show the text within the button instead of the tooltip
+			local resetRealTimeText = resetRealTime:CreateFontString(nil, "overlay", "GameFontNormal")
+			resetRealTimeText:SetPoint("left", resetRealTimeIcon, "right", 5, 0)
+			resetRealTimeText:SetText("Reset data")
+
+			if (DetailsFramework) then
+				DetailsFramework:ApplyStandardBackdrop(resetRealTime)
+			end
+
 			resetRealTime:SetScript ("OnEnter", function (self)
 				GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
 				GameTooltip:AddLine ("reset data")
@@ -1203,11 +1245,13 @@ local tutorial_phrases = {
 			--
 			local startRealTime = CreateFrame ("button", "ACUStartRealTimeButton", f, BackdropTemplateMixin and "BackdropTemplate")
 			startRealTime:SetPoint ("left", resetRealTime, "right", 10, 0)
-			startRealTime:SetSize (16*buttonScale, 16*buttonScale)
+			startRealTime:SetSize (120*buttonScale, 20*buttonScale)
+
 			local startRealTimeIcon = startRealTime:CreateTexture (nil, "overlay")
 			startRealTimeIcon:SetTexture ([[Interface\BUTTONS\UI-SpellbookIcon-NextPage-Up]])
 			startRealTimeIcon:SetSize (18*buttonScale, 18*buttonScale)
-			startRealTimeIcon:SetPoint ("center")
+			startRealTimeIcon:SetPoint ("left", startRealTime, "left", 2, 0)
+
 			startRealTime:SetScript ("OnClick", function()
 				if (ACU:IsProfileEnabled()) then
 					if (not ACU.RealTimeTick) then
@@ -1221,6 +1265,15 @@ local tutorial_phrases = {
 					ACU:Msg (Loc ["STRING_PROFILING_NOT_ENABLED"])
 				end
 			end)
+
+			--create a fontstring to show the text within the button instead of the tooltip
+			local startRealTimeText = startRealTime:CreateFontString(nil, "overlay", "GameFontNormal")
+			startRealTimeText:SetPoint("left", startRealTimeIcon, "right", 5, 0)
+			startRealTimeText:SetText("Start Real Time")
+
+			if (DetailsFramework) then
+				DetailsFramework:ApplyStandardBackdrop(startRealTime)
+			end
 
 			startRealTime:SetScript ("OnEnter", function (self)
 				GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
@@ -1236,12 +1289,13 @@ local tutorial_phrases = {
 			--
 			local stopRealTime = CreateFrame ("button", "ACUStopRealTimeButton", f, BackdropTemplateMixin and "BackdropTemplate")
 			stopRealTime:SetPoint ("left", startRealTime, "right", 10, -1)
-			stopRealTime:SetSize (16*buttonScale, 16*buttonScale)
-			
+			stopRealTime:SetSize (100*buttonScale, 20*buttonScale)
+
 			local stopRealTimeIcon = stopRealTime:CreateTexture (nil, "overlay")
 			stopRealTimeIcon:SetTexture ([[Interface\BUTTONS\CancelButton-Up]])
 			stopRealTimeIcon:SetSize (26*buttonScale, 26*buttonScale)
-			stopRealTimeIcon:SetPoint ("center")
+			stopRealTimeIcon:SetPoint ("left", stopRealTime, "left", 2, 0)
+
 			stopRealTime:SetScript ("OnClick", function()
 				if (ACU:IsProfileEnabled()) then
 					if (ACU.RealTimeTick) then
@@ -1255,6 +1309,15 @@ local tutorial_phrases = {
 					ACU:Msg (Loc ["STRING_PROFILING_NOT_ENABLED"])
 				end
 			end)
+
+			--create a fontstring to show the text within the button instead of the tooltip
+			local stopRealTimeText = stopRealTime:CreateFontString(nil, "overlay", "GameFontNormal")
+			stopRealTimeText:SetPoint("left", stopRealTimeIcon, "right", 5, 0)
+			stopRealTimeText:SetText("Stop")
+
+			if (DetailsFramework) then
+				DetailsFramework:ApplyStandardBackdrop(stopRealTime)
+			end
 
 			stopRealTime:SetScript ("OnEnter", function (self)
 				GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
@@ -1282,6 +1345,9 @@ local tutorial_phrases = {
 			if (ACU:IsProfileEnabled()) then
 				profilerText:SetText (Loc ["STRING_PROFILE_ENABLED"])
 				profilerText:SetTextColor (0.4, 1, 0.4)
+				if (DetailsFramework) then
+					DetailsFramework:SetFontSize(profilerText, 11)
+				end
 				enableDisableProfillerButton.text:SetText (Loc ["STRING_PROFILE_STOP"])
 
 				if (table_frame:IsShown()) then

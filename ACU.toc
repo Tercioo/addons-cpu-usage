@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: Addon Cpu Usage
 ## Notes: Show how much your addons are using the CPU.
 ## SavedVariables: AddonCpuUsageDB
