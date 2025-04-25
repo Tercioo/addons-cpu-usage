@@ -12,6 +12,8 @@ local GameTooltip = GameTooltip
 --local debugmode = true
 local debugmode = false
 
+GetNumSpecializationsForClassID = GetNumSpecializationsForClassID or C_SpecializationInfo.GetNumSpecializationsForClassID
+
 local GetAddOnInfo   		= C_AddOns and C_AddOns.GetAddOnInfo or GetAddOnInfo
 local GetNumAddOns   		= C_AddOns and C_AddOns.GetNumAddOns or GetNumAddOns
 local GetAddOnCPUUsage		= GetAddOnCPUUsage
